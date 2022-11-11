@@ -12,7 +12,7 @@ if (process.env.serverURL) {
         appId: process.env.appId, appKey: process.env.appKey, serverURL: process.env.serverURL
     });
 }
-http.createServer(function (req, res)   {
+http.createServer(function (req, res) {
     res.cookie = function (id, value, json = {path: '/', maxAge: null, expires: null, domain: null}) {
         if (json.maxAge) {
             json.maxAge = '; max-age=' + json.maxAge;
@@ -64,15 +64,17 @@ http.createServer(function (req, res)   {
             }
         }
     }
+
     cookie2json()
+
     function getImg(req, res) {
         var pattern = new RegExp(process.env.pattern)
         const query = new AV.Query('img');
         query.equalTo('path', req.url.pathname);
         query.find().then((img) => {
             if (img.length > 0) {
-                console.log(img[0].get('anti_theft_link'),  req.headers.referer)
-                if (img[0].get('anti_theft_link')){
+                console.log(img[0].get('anti_theft_link'), req.headers.referer)
+                if (img[0].get('anti_theft_link')) {
                     if (req.headers.referer) {
                         if (pattern.test(req.headers.referer)) {
                             res.writeHead(200, {
@@ -105,6 +107,14 @@ http.createServer(function (req, res)   {
                         });
                         res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                     }
+                } else {
+                    res.writeHead(200, {
+                        'Content-Type': img[0].get('type'),
+                        'Access-Control-Allow-Credentials': 'true',
+                        'Access-Control-Allow-Origin': '*'
+                    });
+                    res.end(new Buffer.from(img[0].get('base64'), 'base64'));
+                }
             } else {
                 const query = new AV.Query('img');
                 query.equalTo('path', '/404.png');
@@ -123,5 +133,6 @@ http.createServer(function (req, res)   {
             }
         });
     }
+
     getImg(req, res)
 }).listen(80);
