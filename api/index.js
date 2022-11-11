@@ -73,7 +73,7 @@ http.createServer(function (req, res)   {
                 query.find().then((img) => {
                     if (img.length > 0) {
                         res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
-                        res.end(new Buffer.form(img[0].get('base64'), 'base64'));
+                        res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                     } else {
                         res.end('');
                     }
@@ -84,7 +84,7 @@ http.createServer(function (req, res)   {
                 query.find().then((img) => {
                     if (img.length > 0) {
                         res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
-                        res.end(new Buffer.form(img[0].get('base64'), 'base64'));
+                        res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                     } else {
                         res.end('');
                     }
