@@ -65,31 +65,58 @@ http.createServer(function (req, res)   {
         }
     }
     cookie2json()
-    function getImg(req, res){
-            var pattern = new RegExp(process.env.pattern)
-            if (!req.headers.referer){
-                const query = new AV.Query('img');
-                query.equalTo('path', req.url.pathname);
-                query.find().then((img) => {
-                    if (img.length > 0) {
-                        res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
-                        res.end(new Buffer.from(img[0].get('base64'), 'base64'));
+    function getImg(req, res) {
+        var pattern = new RegExp(process.env.pattern)
+        const query = new AV.Query('img');
+        query.equalTo('path', req.url.pathname);
+        query.find().then((img) => {
+            if (img.length > 0) {
+                if (img.get('anti_theft_link'))
+                    if (req.headers.referer) {
+                        if (pattern.test(req.headers.referer)) {
+                            res.writeHead(200, {
+                                'Content-Type': img[0].get('type'),
+                                'Access-Control-Allow-Credentials': 'true',
+                                'Access-Control-Allow-Origin': '*'
+                            });
+                            res.end(new Buffer.from(img[0].get('base64'), 'base64'));
+                        } else {
+                            const query = new AV.Query('img');
+                            query.equalTo('path', '/anti_theft_link.png');
+                            query.find().then((img) => {
+                                if (img.length > 0) {
+                                    res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
+                                    res.end(new Buffer.from(img[0].get('base64'), 'base64'));
+                                } else {
+                                    res.end('');
+                                }
+                            });
+                        }
                     } else {
-                        res.end('');
+                        res.writeHead(200, {
+                            'Content-Type': img[0].get('type'),
+                            'Access-Control-Allow-Credentials': 'true',
+                            'Access-Control-Allow-Origin': '*'
+                        });
+                        res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                     }
-                });
-            } else if (req.headers.referer && pattern.test(req.headers.referer)){
+            } else {
                 const query = new AV.Query('img');
-                query.equalTo('path', req.url.pathname);
+                query.equalTo('path', '/404.png');
                 query.find().then((img) => {
                     if (img.length > 0) {
-                        res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
+                        res.writeHead(200, {
+                            'Content-Type': img[0].get('type'),
+                            'Access-Control-Allow-Credentials': 'true',
+                            'Access-Control-Allow-Origin': '*'
+                        });
                         res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                     } else {
                         res.end('');
                     }
                 });
             }
+        });
     }
     getImg(req, res)
 }).listen(80);
