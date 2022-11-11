@@ -1,0 +1,15 @@
+{
+  "name": "img",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Fgaoxing",
+  "license": "ISC",
+  "dependencies": {
+    "multiparty": "^4.2.3",
+    "leancloud-storage": "^4.13.2"
+  }
+}

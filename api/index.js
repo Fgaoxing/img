@@ -1,0 +1,95 @@
+const fs = require("fs");
+const http = require("http");
+const url = require('url');
+const AV = require("leancloud-storage");
+
+if (process.env.serverURL) {
+    AV.init({
+        appId: process.env.appId, appKey: process.env.appKey
+    });
+} else {
+    AV.init({
+        appId: process.env.appId, appKey: process.env.appKey, serverURL: process.env.serverURL
+    });
+}
+http.createServer(function (req, res)   {
+    res.cookie = function (id, value, json = {path: '/', maxAge: null, expires: null, domain: null}) {
+        if (json.maxAge) {
+            json.maxAge = '; max-age=' + json.maxAge;
+        } else {
+            json.maxAge = '';
+        }
+        if (json.expires) {
+            json.expires = '; expires=' + json.expires;
+        } else {
+            json.expires = '';
+        }
+        if (json.domain) {
+            json.domain = '; domain=' + json.domain;
+        } else {
+            json.domain = '';
+        }
+        if (!json.path) {
+            json.path = '/';
+        }
+        this.setHeader('set-cookie', id + '=' + value + '; path=' + json.path + json.maxAge + json.expires + json.domain);
+    }
+    res.clearCookie = function (id, path = '/') {
+        this.setHeader('set-cookie', id + '=; maxAge=0; path=' + path);
+    }
+    req.url = url.parse(req.url)
+    res.getQueryVariable = function (variable, err) {
+        if (req.url.query) {
+            var vars = req.url.query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) {
+                    return decodeURIComponent(pair[1]);
+                }
+            }
+        }
+        return (err);
+    }
+
+    function cookie2json() {
+        req.cookie = {}
+        if (req.headers.cookie && req.headers.cookie.indexOf('=') != -1) {
+            if (req.headers.cookie.indexOf('; ') != -1) {
+                var x = req.headers.cookie.split("; ");
+            } else {
+                var x = [req.headers.cookie];
+            }
+            for (let i = 0; i < x.length; i++) {
+                req.cookie[x[i].split('=')[0]] = x[i].split('=')[1];
+            }
+        }
+    }
+    cookie2json()
+    function getImg(req, res){
+            var pattern = new RegExp(process.env.pattern)
+            if (!req.headers.referer){
+                const query = new AV.Query('img');
+                query.equalTo('path', req.url.pathname);
+                query.find().then((img) => {
+                    if (img.length > 0) {
+                        res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
+                        res.end(new Buffer.form(img[0].get('base64'), 'base64'));
+                    } else {
+                        res.end('');
+                    }
+                });
+            } else if (req.headers.referer && pattern.test(req.headers.referer)){
+                const query = new AV.Query('img');
+                query.equalTo('path', req.url.pathname);
+                query.find().then((img) => {
+                    if (img.length > 0) {
+                        res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
+                        res.end(new Buffer.form(img[0].get('base64'), 'base64'));
+                    } else {
+                        res.end('');
+                    }
+                });
+            }
+    }
+    getImg(req, res)
+}).listen(80);
