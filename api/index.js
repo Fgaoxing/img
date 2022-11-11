@@ -71,7 +71,8 @@ http.createServer(function (req, res)   {
         query.equalTo('path', req.url.pathname);
         query.find().then((img) => {
             if (img.length > 0) {
-                if (img[0].get('anti_theft_link'))
+                console.log(img[0].get('anti_theft_link'),  req.headers.referer)
+                if (img[0].get('anti_theft_link')){
                     if (req.headers.referer) {
                         if (pattern.test(req.headers.referer)) {
                             res.writeHead(200, {
@@ -85,7 +86,11 @@ http.createServer(function (req, res)   {
                             query.equalTo('path', '/anti_theft_link.png');
                             query.find().then((img) => {
                                 if (img.length > 0) {
-                                    res.writeHead(200, {'Content-Type': img[0].get('type'),'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': '*'});
+                                    res.writeHead(200, {
+                                        'Content-Type': img[0].get('type'),
+                                        'Access-Control-Allow-Credentials': 'true',
+                                        'Access-Control-Allow-Origin': '*'
+                                    });
                                     res.end(new Buffer.from(img[0].get('base64'), 'base64'));
                                 } else {
                                     res.end('');
