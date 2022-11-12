@@ -169,6 +169,9 @@ http.createServer(function (req, res) {
                     const file = new File();
                     file.set('path', path);
                     file.set('type', files['file'].type);
+                    console.log(files['file'].filepath)
+                    console.log(fs.readFileSync(files['file'].filepath))
+                    console.log(fs.readFileSync(files['file'].filepath).toString('base64'))
                     file.set('base64', fs.readFileSync(files['file'].filepath).toString('base64'));
                     file.set('anti_theft_link', fields['anti_theft_link']);
                     file.save().then(() => {
