@@ -192,8 +192,7 @@ http.createServer(function (req, res) {
 
     if (req.url.pathname === '/api/upload') {
         upload(req, res);
-    }
-    if (!'/api' in req.url.pathname) {
+    } else {
         getImg(req, res)
     }
 }).listen(80);
