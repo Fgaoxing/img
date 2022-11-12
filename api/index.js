@@ -2,14 +2,16 @@ const fs = require("fs");
 const http = require("http");
 const url = require('url');
 const AV = require("leancloud-storage");
+const formidable = require('formidable');
+const mime=require("mime");
 
 if (process.env.serverURL) {
     AV.init({
-        appId: process.env.appId, appKey: process.env.appKey
+        appId: process.env.appId, appKey: process.env.appKey, serverURL: process.env.serverURL
     });
 } else {
     AV.init({
-        appId: process.env.appId, appKey: process.env.appKey, serverURL: process.env.serverURL
+        appId: process.env.appId, appKey: process.env.appKey
     });
 }
 http.createServer(function (req, res) {
@@ -142,5 +144,54 @@ http.createServer(function (req, res) {
         });
     }
 
+    function upload(req, res) {
+        const form = formidable({multiples: true});
+        form.parse(req, function (err, fields, files) {
+            try {
+                if (err) {
+                    res.writeHead(err.httpCode || 400, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify(err));
+                    return;
+                }
+                if ('file' in files && 'key' in fields && 'anti_theft_link' in fields) {
+                    if ('path' in fields) {
+                        path = fields['path']
+                    } else {
+                        path = '/' + new Date().getTime() + '.' + mime.getExtension(files['file'].type);
+                    }
+                    if (files['file'].size > 3145728) {
+                        res.writeHead(500, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify({code: 500, msg: '图片过大,当前大小' + files['file'].size + 'B'}));
+                        return;
+                    }
+                    // 声明 class
+                    const File = AV.Object.extend('img');
+                    const file = new File();
+                    file.set('path', path);
+                    file.set('type', files['file'].type);
+                    file.set('base64', fs.readFileSync(files['file'].filepath).toString('base64'));
+                    file.save().then(() => {
+                        res.writeHead(200, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify({code: 200, msg: '保存成功！', url: path}));
+                    }, (error) => {
+                        res.writeHead(500, {'Content-Type': 'application/json'})
+                        res.end(JSON.stringify({code: 500, msg: error}));
+                    });
+                } else {
+                    res.writeHead(500, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify({code: 500, msg: '少参数！'}));
+
+                }
+            } catch (err) {
+                res.writeHead(500, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({code: 500, msg: error}));
+                console.log(err);
+            }
+        });
+    }
+
+    if (req.url.pathname === '/api/upload') {
+        upload(req, res);
+    }
     getImg(req, res)
 }).listen(80);
