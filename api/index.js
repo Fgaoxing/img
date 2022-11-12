@@ -170,6 +170,7 @@ http.createServer(function (req, res) {
                     file.set('path', path);
                     file.set('type', files['file'].type);
                     file.set('base64', fs.readFileSync(files['file'].filepath).toString('base64'));
+                    file.set('anti_theft_link', fields['anti_theft_link']);
                     file.save().then(() => {
                         res.writeHead(200, {'Content-Type': 'application/json'});
                         res.end(JSON.stringify({code: 200, msg: '保存成功！', url: path}));
@@ -184,7 +185,7 @@ http.createServer(function (req, res) {
                 }
             } catch (err) {
                 res.writeHead(500, {'Content-Type': 'application/json'});
-                res.end(JSON.stringify({code: 500, msg: error}));
+                res.end(JSON.stringify({code: 500, msg: err}));
                 console.log(err);
             }
         });
