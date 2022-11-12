@@ -55,7 +55,7 @@ http.createServer(function (req, res) {
 
     function cookie2json() {
         req.cookie = {}
-        if (req.headers.cookie && req.headers.cookie.indexOf('=') != -1) {
+        if (req.headers.cookie && req.headers.cookie.indexOf('=') !== -1) {
             if (req.headers.cookie.indexOf('; ') != -1) {
                 var x = req.headers.cookie.split("; ");
             } else {
@@ -169,12 +169,8 @@ http.createServer(function (req, res) {
                     const file = new File();
                     file.set('path', path);
                     file.set('type', files['file'].type);
-                    console.log(files)
-                    console.log(files['file'].path)
-                    console.log(fs.readFileSync(files['file'].path))
-                    console.log(fs.readFileSync(files['file'].path).toString('base64'))
                     file.set('base64', fs.readFileSync(files['file'].path).toString('base64'));
-                    file.set('anti_theft_link', fields['anti_theft_link']);
+                    file.set('anti_theft_link',(fields['anti_theft_link'] == 'true'));
                     file.save().then(() => {
                         res.writeHead(200, {'Content-Type': 'application/json'});
                         res.end(JSON.stringify({code: 200, msg: '保存成功！', url: path}));
