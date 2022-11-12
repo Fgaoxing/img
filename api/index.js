@@ -3,7 +3,7 @@ const http = require("http");
 const url = require('url');
 const AV = require("leancloud-storage");
 const formidable = require('formidable');
-const mime=require("mime");
+const mime = require("mime");
 
 if (process.env.serverURL) {
     AV.init({
@@ -193,5 +193,7 @@ http.createServer(function (req, res) {
     if (req.url.pathname === '/api/upload') {
         upload(req, res);
     }
-    getImg(req, res)
+    if (!'/api' in req.url.pathname) {
+        getImg(req, res)
+    }
 }).listen(80);
