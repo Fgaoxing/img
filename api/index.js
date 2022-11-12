@@ -154,7 +154,7 @@ http.createServer(function (req, res) {
                     return;
                 }
                 if ('file' in files && 'key' in fields && 'anti_theft_link' in fields) {
-                    if (fields['key'].toString()!==process.env.appKey){
+                    if (fields['key'].toString()!==process.env.Key){
                         res.writeHead(304, {'Content-Type': 'application/json'});
                         res.end(JSON.stringify({code: 304, msg: '密钥错误！'}));
                         return;
