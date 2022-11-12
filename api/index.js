@@ -170,10 +170,10 @@ http.createServer(function (req, res) {
                     file.set('path', path);
                     file.set('type', files['file'].type);
                     console.log(files)
-                    console.log(files['file'].filepath)
-                    console.log(fs.readFileSync(files['file'].filepath))
-                    console.log(fs.readFileSync(files['file'].filepath).toString('base64'))
-                    file.set('base64', fs.readFileSync(files['file'].filepath).toString('base64'));
+                    console.log(files['file'].path)
+                    console.log(fs.readFileSync(files['file'].path))
+                    console.log(fs.readFileSync(files['file'].path).toString('base64'))
+                    file.set('base64', fs.readFileSync(files['file'].path).toString('base64'));
                     file.set('anti_theft_link', fields['anti_theft_link']);
                     file.save().then(() => {
                         res.writeHead(200, {'Content-Type': 'application/json'});
