@@ -75,7 +75,7 @@ http.createServer(function (req, res) {
         query.equalTo('path', req.url.pathname);
         query.find().then((img) => {
             if (img.length > 0) {
-                console.log(img[0].get('anti_theft_link'), req.headers.referer)
+                console.log(img[0].get('anti_theft_link'), req.headers.referer, pattern.test(req.headers.referer))
                 if (img[0].get('anti_theft_link')) {
                     if (req.headers.referer) {
                         if (pattern.test(req.headers.referer)) {
