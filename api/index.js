@@ -70,7 +70,7 @@ http.createServer(function (req, res) {
     cookie2json()
 
     function getImg(req, res) {
-        var pattern = new RegExp(process.env.pattern)
+        var pattern = new RegExp(process.env.referer)
         const query = new AV.Query('img');
         query.equalTo('path', req.url.pathname);
         query.find().then((img) => {
